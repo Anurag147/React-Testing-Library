@@ -22,7 +22,13 @@ test('call on user add', () => {
     render(<UserForm onUserAdd={mock} />); 
     
     //Find Element
-    const [nameInput, emailInput] = screen.getAllByRole('textbox');
+    const nameInput = screen.getByRole('textbox', {
+        name: /name/i
+    });
+    const emailInput = screen.getByRole('textbox', {
+        name: /email/i
+    });
+
     user.click(nameInput); //click name input
     user.keyboard('Jane'); //Type in name input
     user.click(emailInput); //click email input
@@ -33,4 +39,22 @@ test('call on user add', () => {
     expect(mock).toHaveBeenCalled();
     expect(mock).toHaveBeenCalledWith({name:'Jane',email:"Jane@gmail.com"});
 
+});
+
+test('empties the two inputs when form is submitted', async () => {
+  render(<UserForm onUserAdd={() => {}} />);
+
+  const nameInput = screen.getByRole('textbox', { name: /name/i });
+  const emailInput = screen.getByRole('textbox', { name: /email/i });
+  const button = screen.getByRole('button');
+
+  await user.click(nameInput);
+  await user.keyboard('jane');
+  await user.click(emailInput);
+  await user.keyboard('jane@jane.com');
+
+  await user.click(button);
+
+  expect(nameInput).toHaveValue('');
+  expect(emailInput).toHaveValue('');
 });
